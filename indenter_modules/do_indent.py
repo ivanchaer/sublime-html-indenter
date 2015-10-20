@@ -1,9 +1,12 @@
 import sublime, os, sys
 import re
 
+from os.path import join
+lib_path = join(sublime.packages_path(), 'indenter')
+sys.path.append(lib_path)
+
 from .. import bs4
 import bs4.builder._html5lib
-print (bs4.builder.builder_registry.builders)
 
 class DoIndent():
 
@@ -20,7 +23,7 @@ class DoIndent():
         if new_file_str != file_str:
             # replace old contents with new ones
             view.replace(edit, reg, new_file_str)
-            print(view.file_name())
+            # print(view.file_name())
 
 
 

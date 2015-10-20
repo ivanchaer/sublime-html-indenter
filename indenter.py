@@ -10,7 +10,7 @@ if sublime.version() == '' or int(sublime.version()) > 3000:
 
 
 
-class AdvancedReplace(sublime_plugin.TextCommand):
+class Indenter(sublime_plugin.TextCommand):
 
   def run(self, edit):
 
