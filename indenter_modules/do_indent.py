@@ -31,7 +31,7 @@ class DoIndent():
         # Replace ['span', 'a'] with the tags on which you want to prevent indentation.
         unformatted_tag_list = []
 
-        for i, tag in enumerate(stripped_markup.find_all(['span', 'a', 'p'])):
+        for i, tag in enumerate(stripped_markup.find_all(['span', 'a', 'strong', 'em', 'b', 'i', 'input', 'button', 'script', 'option', 'label', 'p'])):
             unformatted_tag_list.append(str(tag))
             tag.replace_with('{' + 'unformatted_tag_list[{0}]'.format(i) + '}')
 
