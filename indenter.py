@@ -1,14 +1,9 @@
 import sublime, sublime_plugin, sys, imp, os
 
-
-
-
 # Make sure all dependencies are reloaded on upgrade
 st_version = 2
 if sublime.version() == '' or int(sublime.version()) > 3000:
   st_version = 3
-
-
 
 class Indenter(sublime_plugin.TextCommand):
 
