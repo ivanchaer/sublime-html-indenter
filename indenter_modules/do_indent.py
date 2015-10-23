@@ -12,14 +12,16 @@ import bs4.builder._html5lib
 # Make the indent width a parameter.
 # orig_prettify = bs4.BeautifulSoup.prettify
 # r = re.compile(r'^(\s*)', re.MULTILINE)
-# def prettify(self, encoding=None, formatter="minimal", indent_width=4):
+# def prettify(self, encoding=None, formatter="minimal", indentation_width=4):
 #     string = orig_prettify(self, encoding, formatter)
 #     lines = string.splitlines(True)
-#     return '\n'.join([r.sub(r'\1' * indent_width, line) for line in lines])
+#     return '\n'.join([r.sub(r'\1' * indentation_width, line) for line in lines])
 # bs4.BeautifulSoup.prettify = prettify
 
 indentations = re.compile(r'^(\s*)', re.MULTILINE)
-indent_width = 4
+indentation_width = 4
+indentation_character = r' '
+do_not_indent = ['span', 'a', 'strong', 'em', 'b', 'i', 'input', 'button', 'script', 'option', 'label', 'p', 'textarea', 'pre']
 
 def prettify(self, encoding=None, formatter="minimal"):
     if encoding is None:
@@ -36,17 +38,21 @@ class DoIndent():
         # Prevent indentation inside certain tags.
         unformatted_tag_list = []
 
-        for i, tag in enumerate(soup.find_all(['span', 'a', 'strong', 'em', 'b', 'i', 'input', 'button', 'script', 'option', 'label', 'p', 'textarea', 'pre'])):
+        for i, tag in enumerate(soup.find_all(do_not_indent)):
             
             unformatted_tag_list.append(str(tag))
             
             tag.replace_with('{' + 'unformatted_tag_list[{0}]'.format(i) + '}')
 
         pretty_markup = soup.prettify().format(unformatted_tag_list=unformatted_tag_list)
+        lines = pretty_markup.splitlines(True)
 
-        pretty_markup = indentations.sub(r'\1' * indent_width, pretty_markup)
+        output = ''
+        for line in lines:
+            indentation_level = len(indentations.match(line).group(0))
+            output += '%s%s' % ((indentation_level * indentation_width) * indentation_character, line[indentation_level:])
 
-        return pretty_markup
+        return output
 
     def perform_replacement(self, view, edit):
 
