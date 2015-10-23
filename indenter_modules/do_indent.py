@@ -27,11 +27,10 @@ class DoIndent():
 
         stripped_markup = bs4.BeautifulSoup(stripped_markup, "html.parser")
 
-        # Avoid breaking textareas and pre tags. 
-        # Replace ['span', 'a'] with the tags on which you want to prevent indentation.
+        # Prevent indentation inside certain tags.
         unformatted_tag_list = []
 
-        for i, tag in enumerate(stripped_markup.find_all(['span', 'a', 'strong', 'em', 'b', 'i', 'input', 'button', 'script', 'option', 'label', 'p'])):
+        for i, tag in enumerate(stripped_markup.find_all(['span', 'a', 'strong', 'em', 'b', 'i', 'input', 'button', 'script', 'option', 'label', 'p', 'textarea', 'pre'])):
             unformatted_tag_list.append(str(tag))
             tag.replace_with('{' + 'unformatted_tag_list[{0}]'.format(i) + '}')
 
