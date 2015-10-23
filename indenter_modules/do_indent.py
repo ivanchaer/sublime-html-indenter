@@ -8,7 +8,36 @@ sys.path.append(lib_path)
 from .. import bs4
 import bs4.builder._html5lib
 
+
+# Monkeypatch prettify_2space in place of prettify in the class. 
+# Make the indent width a parameter.
+orig_prettify = bs4.BeautifulSoup.prettify
+r = re.compile(r'^(\s*)', re.MULTILINE)
+def prettify(self, encoding=None, formatter="minimal", indent_width=4):
+    return r.sub(r'\1' * indent_width, orig_prettify(self, encoding, formatter))
+bs4.BeautifulSoup.prettify = prettify
+
+
 class DoIndent():
+
+    def indent(self, markup):
+
+        # Double curly brackets to avoid problems with .format()
+        stripped_markup = markup.replace('{','{{').replace('}','}}')
+
+        stripped_markup = bs4.BeautifulSoup(stripped_markup, "html.parser")
+
+        # Avoid breaking textareas and pre tags. 
+        # Replace ['span', 'a'] with the tags on which you want to prevent indentation.
+        unformatted_tag_list = []
+
+        for i, tag in enumerate(stripped_markup.find_all(['span', 'a', 'p'])):
+            unformatted_tag_list.append(str(tag))
+            tag.replace_with('{' + 'unformatted_tag_list[{0}]'.format(i) + '}')
+
+        pretty_markup = stripped_markup.prettify().format(unformatted_tag_list=unformatted_tag_list)
+
+        return pretty_markup
 
     def perform_replacement(self, view, edit):
 
@@ -18,7 +47,7 @@ class DoIndent():
         # get file contents
         file_str = view.substr(sublime.Region(0, view.size()))
 
-        new_file_str = bs4.BeautifulSoup(file_str, "html.parser").prettify()
+        new_file_str = self.indent(file_str)
 
         if new_file_str != file_str:
             # replace old contents with new ones
